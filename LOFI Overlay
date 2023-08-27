@@ -1,0 +1,193 @@
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local Camera = workspace.CurrentCamera
+local Clouds = nil
+
+for i, v in pairs(Lighting:GetChildren()) do
+	v:Destroy()
+end
+
+if workspace.Terrain:FindFirstChildWhichIsA("Clouds",true) then
+	workspace.Terrain:FindFirstChildWhichIsA("Clouds",true):Destroy()
+end
+
+local TIAmbience = TweenInfo.new(1,Enum.EasingStyle.Sine,Enum.EasingDirection.In,0,false,0)
+local TIExposure = TweenInfo.new(.1,Enum.EasingStyle.Sine,Enum.EasingDirection.In,0,false,0)
+
+
+local DayAmbient = TweenService:Create(Lighting,TIAmbience,
+	{
+		Ambient = Color3.new(0.172549, 0.215686, 0.333333),
+		OutdoorAmbient = Color3.new(0.756863, 0.678431, 0.486275)
+	})
+
+local NightAmbient = TweenService:Create(Lighting,TIAmbience,
+	{
+		Ambient = Color3.new(0.176471, 0.2, 0.27451),
+		OutdoorAmbient = Color3.new(0.278431, 0.317647, 0.415686)
+	})
+
+local Exposure = .5
+
+function RealisticLighting()
+	Lighting.ShadowSoftness = 1
+	Lighting.EnvironmentSpecularScale = 1
+	TweenService:Create(Lighting,TIExposure,{ExposureCompensation = Exposure}):Play()
+	if Lighting.ClockTime >= 17.5 or Lighting.ClockTime <= 6.5  then
+		NightAmbient:Play()
+		if Clouds then
+			Clouds:Destroy()
+			Clouds = nil
+		end
+	else
+		DayAmbient:Play()
+		if not Clouds then
+			CreateCloud()
+		end
+	end
+end
+
+function UnrealisticLighting()
+	Lighting.ShadowSoftness = .2
+	Lighting.EnvironmentSpecularScale = 0
+	Lighting.ExposureCompensation = 0
+	Lighting.Ambient = Color3.new(0.541176, 0.541176, 0.541176)
+	Lighting.OutdoorAmbient = Color3.new(0.501961, 0.501961, 0.501961)
+end
+
+local UNIT_Z = Vector3.new(0, 0, 1)
+local EARTH_TILT = math.rad(23.5)
+local HALF_SOLAR_YEAR = 182.6282
+
+function getSunDirection()
+	local gameTime = Lighting:GetMinutesAfterMidnight()
+	local geoLatitude = Lighting.GeographicLatitude
+
+	local dayTime = gameTime / 1440
+	local sourceAngle = 2 * math.pi * dayTime
+
+	local sunPosition = Vector3.new(math.sin(sourceAngle), -math.cos(sourceAngle), 0)
+	local latRad = math.rad(geoLatitude)
+
+	local sunOffset = -EARTH_TILT * math.cos(math.pi * (dayTime - HALF_SOLAR_YEAR) / HALF_SOLAR_YEAR) - latRad
+	local sunRotation = CFrame.fromAxisAngle(UNIT_Z:Cross(sunPosition), sunOffset)
+
+	local sunDirection = sunRotation * sunPosition
+	return sunDirection
+end
+
+function CreateCloud()
+	Clouds = Instance.new("Clouds", workspace.Terrain)
+	Clouds.Cover = .731
+	Clouds.Density = 1
+	Clouds.Color = Color3.new(0.839216, 0.839216, 0.839216)
+end
+
+local SGUI = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
+
+local ImageEffects1 = Instance.new("ImageLabel" ,SGUI)
+ImageEffects1.Size = UDim2.new(1, 0, 1, 36)
+ImageEffects1.Position = UDim2.new(0, 0, 0 ,-36)
+ImageEffects1.Image = "http://www.roblox.com/asset/?id=13928716599"
+ImageEffects1.Transparency = 1
+ImageEffects1.ImageTransparency = .9
+ImageEffects1.ScaleType = Enum.ScaleType.Tile
+
+local ImageEffects2 = Instance.new("ImageLabel" ,SGUI)
+ImageEffects2.Size = UDim2.new(1, 0, 1, 36)
+ImageEffects2.Position = UDim2.new(0, 0, 0 ,-36)
+ImageEffects2.Image = "http://www.roblox.com/asset/?id=4576475446"
+ImageEffects2.Transparency = 1
+
+local Skybox = Instance.new("Sky", Lighting)
+
+function RealisticSkybox()
+	Skybox.StarCount = 3000
+	Skybox.SunAngularSize = 21
+	Skybox.SkyboxBk = "http://www.roblox.com/asset/?id=91458024"
+	Skybox.SkyboxDn = "http://www.roblox.com/asset/?id=91457980"
+	Skybox.SkyboxFt = "http://www.roblox.com/asset/?id=91458024"
+	Skybox.SkyboxLf = "http://www.roblox.com/asset/?id=91458024"
+	Skybox.SkyboxRt = "http://www.roblox.com/asset/?id=91458024"
+	Skybox.SkyboxUp = "http://www.roblox.com/asset/?id=91458002"
+end
+
+function UnrealisticSkybox()
+	Skybox.StarCount = 3000
+	Skybox.SunAngularSize = 21
+	Skybox.SkyboxBk = "http://www.roblox.com/asset/?id=144933338"
+	Skybox.SkyboxDn = "http://www.roblox.com/asset/?id=144931530"
+	Skybox.SkyboxFt = "http://www.roblox.com/asset/?id=144933262"
+	Skybox.SkyboxLf = "http://www.roblox.com/asset/?id=144933244"
+	Skybox.SkyboxRt = "http://www.roblox.com/asset/?id=144933299"
+	Skybox.SkyboxUp = "http://www.roblox.com/asset/?id=144931564"
+end
+
+local ColorCorrection = Instance.new("ColorCorrectionEffect", Lighting)
+ColorCorrection.TintColor = Color3.new(1, 0.733333, 0.988235)
+
+local SunRays = Instance.new("SunRaysEffect", Lighting)
+SunRays.Intensity = .75
+SunRays.Spread = .1
+
+local DepthOfField = Instance.new("DepthOfFieldEffect", Lighting)
+DepthOfField.FarIntensity = 1
+DepthOfField.InFocusRadius = 25
+DepthOfField.FocusDistance = 0
+DepthOfField.NearIntensity = 1
+
+local Blur = Instance.new("BlurEffect", Lighting)
+local BlurSize = 10
+local StillSize = 5
+
+local TIBlur = TweenInfo.new(.05,Enum.EasingStyle.Sine,Enum.EasingDirection.In,0,false,0)
+local BlurTween = TweenService:Create(Blur,TIBlur,{Size = BlurSize})
+local UnBlurTween = TweenService:Create(Blur,TIBlur,{Size = StillSize})
+
+local LastCFrame = Camera.CFrame
+
+RunService.RenderStepped:Connect(function(Delta)
+	if UserSettings().GameSettings.SavedQualityLevel.Value >= 8 then
+		local CameraCFrame = Camera.CFrame
+		local RayParams = RaycastParams.new()
+		RayParams.FilterType = Enum.RaycastFilterType.Exclude
+		RayParams.FilterDescendantsInstances = {Players.LocalPlayer.Character:GetDescendants()}
+		local Hit = workspace:Raycast(Camera.CFrame.Position, getSunDirection() * 1000,RayParams)
+		
+		local Velocity = (LastCFrame.Position - CameraCFrame.Position).Magnitude
+		local _, RotationSpeed = (CameraCFrame * LastCFrame:Inverse()):ToAxisAngle()
+		
+		if RotationSpeed > .1 or Velocity > 1 then
+			BlurTween:Play()
+		else
+			UnBlurTween:Play()
+		end
+		
+		if Hit then
+			Exposure = -1
+		else
+			Exposure = .5
+		end
+		
+		RealisticLighting()
+		RealisticSkybox()
+		SGUI.Enabled = true
+		ColorCorrection.Enabled = true
+		local RandomSize = math.random(1,100)/100
+		ImageEffects1.TileSize = UDim2.new(RandomSize,0,RandomSize,0)
+	else
+		UnBlurTween:Play()
+		UnrealisticLighting()
+		UnrealisticSkybox()
+		SGUI.Enabled = false
+		ColorCorrection.Enabled = false
+		if Clouds then
+			Clouds:Destroy()
+			Clouds = nil
+		end
+	end
+	LastCFrame = Camera.CFrame
+end)
