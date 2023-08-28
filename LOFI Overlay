@@ -86,22 +86,6 @@ function CreateCloud()
 	Clouds.Color = Color3.new(0.839216, 0.839216, 0.839216)
 end
 
-local SGUI = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
-
-local ImageEffects1 = Instance.new("ImageLabel" ,SGUI)
-ImageEffects1.Size = UDim2.new(1, 0, 1, 36)
-ImageEffects1.Position = UDim2.new(0, 0, 0 ,-36)
-ImageEffects1.Image = "http://www.roblox.com/asset/?id=13928716599"
-ImageEffects1.Transparency = 1
-ImageEffects1.ImageTransparency = .9
-ImageEffects1.ScaleType = Enum.ScaleType.Tile
-
-local ImageEffects2 = Instance.new("ImageLabel" ,SGUI)
-ImageEffects2.Size = UDim2.new(1, 0, 1, 36)
-ImageEffects2.Position = UDim2.new(0, 0, 0 ,-36)
-ImageEffects2.Image = "http://www.roblox.com/asset/?id=4576475446"
-ImageEffects2.Transparency = 1
-
 local Skybox = Instance.new("Sky", Lighting)
 
 function RealisticSkybox()
@@ -148,6 +132,26 @@ local BlurTween = TweenService:Create(Blur,TIBlur,{Size = BlurSize})
 local UnBlurTween = TweenService:Create(Blur,TIBlur,{Size = StillSize})
 
 local LastCFrame = Camera.CFrame
+
+local SGUI, ImageEffects1, ImageEffects2
+
+Players.LocalPlayer.CharacterAdded:Connect(function(Char)
+	SGUI = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
+
+	ImageEffects1 = Instance.new("ImageLabel" ,SGUI)
+	ImageEffects1.Size = UDim2.new(1, 0, 1, 36)
+	ImageEffects1.Position = UDim2.new(0, 0, 0 ,-36)
+	ImageEffects1.Image = "http://www.roblox.com/asset/?id=13928716599"
+	ImageEffects1.Transparency = 1
+	ImageEffects1.ImageTransparency = .9
+	ImageEffects1.ScaleType = Enum.ScaleType.Tile
+
+	ImageEffects2 = Instance.new("ImageLabel" ,SGUI)
+	ImageEffects2.Size = UDim2.new(1, 0, 1, 36)
+	ImageEffects2.Position = UDim2.new(0, 0, 0 ,-36)
+	ImageEffects2.Image = "http://www.roblox.com/asset/?id=4576475446"
+	ImageEffects2.Transparency = 1
+end)
 
 RunService.RenderStepped:Connect(function(Delta)
 	if UserSettings().GameSettings.SavedQualityLevel.Value >= 8 then
