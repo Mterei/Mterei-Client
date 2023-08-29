@@ -179,22 +179,20 @@ RunService.RenderStepped:Connect(function(Delta)
 		RealisticLighting()
 		RealisticSkybox()
 		if SGUI ~= nil then
-			SGUI.Enabled = true
 			local RandomSize = math.random(1,100)/100
 			ImageEffects1.TileSize = UDim2.new(RandomSize,0,RandomSize,0)
 		else
 			LoadGUI()
 		end
-		ColorCorrection.Enabled = true
 	else
 		UnBlurTween:Play()
 		UnrealisticLighting()
 		UnrealisticSkybox()
-		SGUI.Enabled = false
-		ColorCorrection.Enabled = false
-		if Clouds then
-			Clouds:Destroy()
-			Clouds = nil
+		if SGUI ~= nil then
+			local RandomSize = math.random(1,100)/100
+			ImageEffects1.TileSize = UDim2.new(RandomSize,0,RandomSize,0)
+		else
+			LoadGUI()
 		end
 	end
 	LastCFrame = Camera.CFrame
