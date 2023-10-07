@@ -1,1 +1,61 @@
---Import Code Here
+local RPS = game:GetService("ReplicatedStorage")
+local PlyS = game:GetService("Players")
+local CMD = Instance.new("TextChatCommand",game:GetService("TextChatService").CustomCommands) do
+	CMD.PrimaryAlias = "/notags"
+	CMD.SecondaryAlias = "/notags"
+	CMD.Enabled = true
+end
+
+local NAME_COLORS =
+	{
+		Color3.new(253/255, 41/255, 67/255),
+		Color3.new(1/255, 162/255, 255/255),
+		Color3.new(2/255, 184/255, 87/255),
+		BrickColor.new("Bright violet").Color,
+		BrickColor.new("Bright orange").Color,
+		BrickColor.new("Bright yellow").Color,
+		BrickColor.new("Light reddish violet").Color,
+		BrickColor.new("Brick yellow").Color,
+	}
+
+local function GetNameValue(pName)
+	local value = 0
+	for index = 1, #pName do
+		local cValue = string.byte(string.sub(pName, index, index))
+		local reverseIndex = #pName - index + 1
+		if #pName%2 == 1 then
+			reverseIndex = reverseIndex - 1
+		end
+		if reverseIndex%4 >= 2 then
+			cValue = -cValue
+		end
+		value = value + cValue
+	end
+	return value
+end
+
+local color_offset = 0
+
+function ComputeNameColor(pName)
+	return NAME_COLORS[((GetNameValue(pName) + color_offset) % #NAME_COLORS) + 1]
+end
+local predictedColor = ComputeNameColor("typechecked")
+
+function to_hex(color: Color3): string
+	return string.format("#%02X%02X%02X", color.R * 0xFF, color.G * 0xFF, color.B * 0xFF)
+end
+
+function FindUserWithID(ID)
+	for i, v in pairs(PlyS:GetPlayers()) do
+		if v.UserId == ID then
+			return v
+		end
+	end
+end
+
+CMD.Triggered:Connect(function(ply,message)
+	local ply = FindUserWithID(ply.UserId)
+	if message:sub(#CMD.PrimaryAlias + 1):gsub(" ", "") ~= "" then
+		RPS.Remote.ChatMakeSysMsg:FireAllClients( "<font color='".. to_hex(ComputeNameColor(ply.Name)) .."'>".. ply.Name .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":" .. message:sub(#CMD.PrimaryAlias + 1) .."</font>")
+	end
+end)
