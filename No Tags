@@ -53,7 +53,7 @@ TextChatCommand.Triggered:Connect(function(TextSource : TextSource, UnfilteredTe
 	local Player = Players:GetPlayerByUserId(TextSource.UserId)
 	UnfilteredText = UnfilteredText:sub(#TextChatCommand.PrimaryAlias + 2)
 	if UnfilteredText ~= "" then
-		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(ComputeNameColor(Player.Name)) .."'>".. Player.Name .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
+		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(ComputeNameColor(Player.DisplayName)) .."'>".. Player.DisplayName .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
 		Remote.CreateBubbleChat:FireAllClients(Player, UnfilteredText)
 	end
 end)
