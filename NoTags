@@ -3,6 +3,7 @@ local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 
 local Remote = ReplicatedStorage.Remote
+local Commands = require(script.CommandFunctions)
 
 local function CreateText(Text : string, Color : string)
 	return "<font color='".. Color .."'>".. Text .."</font>"
@@ -15,4 +16,4 @@ function notagsf(Player : Player, Arguments : {string}, UnfilteredText : string)
 	end
 end
 
-Module.CreateCommand("notags", notagsf, "Bypasses roblox's chat filter.", "", false)
+Commands.CreateCommand("notags", notagsf, "Bypasses roblox's chat filter.", "", false)
