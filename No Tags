@@ -3,53 +3,17 @@ local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 
 local Remote = ReplicatedStorage.Remote
+local Commands = require(script.CommandFunctions)
 
-local TextChatCommand = Instance.new("TextChatCommand", TextChatService) do
-	TextChatCommand.PrimaryAlias = "/notags"
-	TextChatCommand.SecondaryAlias = "/notags"
-	TextChatCommand.Enabled = true
+local function CreateText(Text : string, Color : string)
+	return "<font color='".. Color .."'>".. Text .."</font>"
 end
 
-local Colors = {
-	Color3.new(253/255, 41/255, 67/255),
-	Color3.new(1/255, 162/255, 255/255),
-	Color3.new(2/255, 184/255, 87/255),
-	BrickColor.new("Bright violet").Color,
-	BrickColor.new("Bright orange").Color,
-	BrickColor.new("Bright yellow").Color,
-	BrickColor.new("Light reddish violet").Color,
-	BrickColor.new("Bright yellow").Color,
-}
-
-local function GetNameValue(pName: string): number
-	local value = 0
-	for index = 1, #pName do
-		local cValue = string.byte(string.sub(pName, index, index))
-		local reverseIndex = #pName - index + 1
-		if #pName % 2 == 1 then
-			reverseIndex = reverseIndex - 1
-		end
-		if reverseIndex % 4 >= 2 then
-			cValue = -cValue
-		end
-		value = value + cValue
-	end
-	return value
-end
-
-local function GetChatColor(name: string): Color3
-	return Colors[(GetNameValue(name) % #Colors) + 1]
-end
-
-function to_hex(color: Color3): string
-	return string.format("#%02X%02X%02X", color.R * 0xFF, color.G * 0xFF, color.B * 0xFF)
-end
-
-TextChatCommand.Triggered:Connect(function(TextSource : TextSource, UnfilteredText : string)
-	local Player = Players:GetPlayerByUserId(TextSource.UserId)
-	UnfilteredText = UnfilteredText:sub(#TextChatCommand.PrimaryAlias + 2)
+function notagsf(Player : Player, Arguments : {string}, UnfilteredText : string)
 	if UnfilteredText ~= "" then
-		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(GetChatColor(Player.DisplayName)) .."'>".. Player.DisplayName .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
+		Remote.CreateSystemMessage:FireAllClients(CreateText(Player.DisplayName .. " [Filter Bypass]" .. ":  ", "#E0A1FF") .. CreateText(UnfilteredText, "#FFFFFF"))
 		Remote.CreateBubbleChat:FireAllClients(Player, UnfilteredText)
 	end
-end)
+end
+
+Commands.CreateCommand("notags", notagsf, "Bypasses roblox's chat filter.", "", false)
