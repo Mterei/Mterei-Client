@@ -1,9 +1,13 @@
-local RPS = game:GetService("ReplicatedStorage")
-local PlyS = game:GetService("Players")
-local CMD = Instance.new("TextChatCommand",game:GetService("TextChatService").CustomCommands) do
-	CMD.PrimaryAlias = "/notags"
-	CMD.SecondaryAlias = "/notags"
-	CMD.Enabled = true
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+
+local Remote = ReplicatedStorage.Remote
+
+local TextChatCommand = Instance.new("TextChatCommand", TextChatService) do
+	TextChatCommand.PrimaryAlias = "/notags"
+	TextChatCommand.SecondaryAlias = "/notags"
+	TextChatCommand.Enabled = true
 end
 
 local NAME_COLORS =
@@ -45,17 +49,11 @@ function to_hex(color: Color3): string
 	return string.format("#%02X%02X%02X", color.R * 0xFF, color.G * 0xFF, color.B * 0xFF)
 end
 
-function FindUserWithID(ID)
-	for i, v in pairs(PlyS:GetPlayers()) do
-		if v.UserId == ID then
-			return v
-		end
-	end
-end
-
-CMD.Triggered:Connect(function(ply,message)
-	local ply = FindUserWithID(ply.UserId)
-	if message:sub(#CMD.PrimaryAlias + 1):gsub(" ", "") ~= "" then
-		RPS.Remote.ChatMakeSysMsg:FireAllClients( "<font color='".. to_hex(ComputeNameColor(ply.Name)) .."'>".. ply.Name .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":" .. message:sub(#CMD.PrimaryAlias + 1) .."</font>")
+TextChatCommand.Triggered:Connect(function(TextSource : TextSource, UnfilteredText : string)
+	local Player = Players:GetPlayerByUserId(TextSource.UserId)
+	UnfilteredText = UnfilteredText:sub(#TextChatCommand.PrimaryAlias + 2)
+	if UnfilteredText ~= "" then
+		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(ComputeNameColor(Player.Name)) .."'>".. Player.Name .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
+		Remote.CreateBubbleChat:FireAllClients(Player, UnfilteredText)
 	end
 end)
