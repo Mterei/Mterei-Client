@@ -10,27 +10,26 @@ local TextChatCommand = Instance.new("TextChatCommand", TextChatService) do
 	TextChatCommand.Enabled = true
 end
 
-local NAME_COLORS =
-	{
-		Color3.new(253/255, 41/255, 67/255),
-		Color3.new(1/255, 162/255, 255/255),
-		Color3.new(2/255, 184/255, 87/255),
-		BrickColor.new("Bright violet").Color,
-		BrickColor.new("Bright orange").Color,
-		BrickColor.new("Bright yellow").Color,
-		BrickColor.new("Light reddish violet").Color,
-		BrickColor.new("Brick yellow").Color,
-	}
+local Colors = {
+	Color3.new(253/255, 41/255, 67/255),
+	Color3.new(1/255, 162/255, 255/255),
+	Color3.new(2/255, 184/255, 87/255),
+	BrickColor.new("Bright violet").Color,
+	BrickColor.new("Bright orange").Color,
+	BrickColor.new("Bright yellow").Color,
+	BrickColor.new("Light reddish violet").Color,
+	BrickColor.new("Bright yellow").Color,
+}
 
-local function GetNameValue(pName)
+local function GetNameValue(pName: string): number
 	local value = 0
 	for index = 1, #pName do
 		local cValue = string.byte(string.sub(pName, index, index))
 		local reverseIndex = #pName - index + 1
-		if #pName%2 == 1 then
+		if #pName % 2 == 1 then
 			reverseIndex = reverseIndex - 1
 		end
-		if reverseIndex%4 >= 2 then
+		if reverseIndex % 4 >= 2 then
 			cValue = -cValue
 		end
 		value = value + cValue
@@ -38,12 +37,9 @@ local function GetNameValue(pName)
 	return value
 end
 
-local color_offset = 0
-
-function ComputeNameColor(pName)
-	return NAME_COLORS[((GetNameValue(pName) + color_offset) % #NAME_COLORS) + 1]
+local function GetChatColor(name: string): Color3
+	return Colors[(GetNameValue(name) % #Colors) + 1]
 end
-local predictedColor = ComputeNameColor("typechecked")
 
 function to_hex(color: Color3): string
 	return string.format("#%02X%02X%02X", color.R * 0xFF, color.G * 0xFF, color.B * 0xFF)
@@ -53,7 +49,7 @@ TextChatCommand.Triggered:Connect(function(TextSource : TextSource, UnfilteredTe
 	local Player = Players:GetPlayerByUserId(TextSource.UserId)
 	UnfilteredText = UnfilteredText:sub(#TextChatCommand.PrimaryAlias + 2)
 	if UnfilteredText ~= "" then
-		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(ComputeNameColor(Player.DisplayName)) .."'>".. Player.DisplayName .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
+		Remote.CreateSystemMessage:FireAllClients("<font color='".. to_hex(GetChatColor(Player.DisplayName)) .."'>".. Player.DisplayName .."</font>" .. "<font color='".. "#FFFFFF" .."'>".. ":  " .. UnfilteredText .."</font>")
 		Remote.CreateBubbleChat:FireAllClients(Player, UnfilteredText)
 	end
 end)
